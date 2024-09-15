@@ -1,0 +1,27 @@
+FROM gitpod/workspace-full:latest
+
+# Install Flutter dependencies
+RUN sudo apt-get update && sudo apt-get install -y curl unzip zip libglu1-mesa default-jdk
+
+# Install Android SDK Command Line Tools
+RUN mkdir -p /usr/local/android-sdk/cmdline-tools && \
+    curl -o /tmp/tools.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip && \
+    unzip /tmp/tools.zip -d /usr/local/android-sdk/cmdline-tools && \
+    mv /usr/local/android-sdk/cmdline-tools/cmdline-tools /usr/local/android-sdk/cmdline-tools/latest
+
+ENV ANDROID_HOME=/usr/local/android-sdk
+ENV PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
+ENV PATH=$ANDROID_HOME/platform-tools:$PATH
+ENV PATH=$ANDROID_HOME/emulator:$PATH
+ENV PATH=$ANDROID_HOME/tools:$PATH
+ENV PATH=$ANDROID_HOME/tools/bin:$PATH
+
+# Install Flutter SDK
+RUN git clone https://github.com/flutter/flutter.git -b stable --depth 1
+ENV PATH="/flutter/bin:${PATH}"
+
+# Accept Android SDK licenses
+RUN yes | sdkmanager --licenses
+
+# Install Android tools and platform
+RUN sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
